@@ -8,7 +8,7 @@ void build_queue();
 - Monta a _queue_ com os 100 primeiros valores lidos pelo sensor
 
 ```cpp
-void update_queue();
+void update_queue(double last_alt_value);
 ```
 
 - Atualiza a _queue_
