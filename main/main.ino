@@ -50,5 +50,5 @@ void loop() {
   update_queue(altitude());  
   
   bno.getEvent(&event);
-  PORTD = PORTD7 & !((int)event.orientation.z);
+  PORTD = PORTD7 & !((int)event.orientation.y);
 }
