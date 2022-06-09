@@ -1,5 +1,5 @@
 void build_queue(){
-  for(int i=0;i<lim;i++) queue_weights[i] = event.orientation.y;//substituir o valor pela orientação do altimetro
+  for(int i=0;i<lim;i++) queue_weights[i] = bmp.readAltitude(S0);
 }
 void update_queue(double last_alt_value){
   for(int i=1;i<lim;i++) {

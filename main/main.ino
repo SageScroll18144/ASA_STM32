@@ -2,10 +2,13 @@
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BNO055.h>
 #include <utility/imumaths.h>
+#include <Adafruit_BMP280.h>
 
 #define ll long long int
+#define S0 1000.0
 
 Adafruit_BNO055 bno = Adafruit_BNO055(55, 0x28);
+Adafruit_BMP280 bmp; // I2C Interface
 
 const int parachute = 13;//mudar valor de acordo com a placa
 
@@ -32,7 +35,6 @@ void setup() {
   pinMode(parachute, OUTPUT);
   
   while(!bno.begin()) Serial.print("Ooops, no BNO055 detected ... Check your wiring or I2C ADDR!");
-
   init_time = millis();
   
   DDRD &= ~(1 << DDD2);//configura PD2 como entrada
@@ -44,10 +46,17 @@ void setup() {
   EIMSK |= (1 << INT0);//habilita interrupção externa 0
   
   sei();
+
+  while(!bmp.begin())Serial.println(F("Could not find a valid BMP280 sensor, check wiring!"));
+  bmp.setSampling(Adafruit_BMP280::MODE_NORMAL,     /* Operating Mode. */
+                Adafruit_BMP280::SAMPLING_X2,     /* Temp. oversampling */
+                Adafruit_BMP280::SAMPLING_X16,    /* Pressure oversampling */
+                Adafruit_BMP280::FILTER_X16,      /* Filtering. */
+                Adafruit_BMP280::STANDBY_MS_500); /* Standby time. */
 }
 void loop() {
   bno.getCalibration(&sys, &gyro, &accel, &mag);
-  update_queue(altitude());  
+  update_queue(bmp.readAltitude(S0));  
   
   bno.getEvent(&event);
   PORTD = PORTD7 & !((int)event.orientation.y);
