@@ -3,7 +3,7 @@
 #include <Adafruit_BNO055.h>
 #include <utility/imumaths.h>
 
-#define BNO055_SAMPLERATE_DELAY_MS (100)
+#define ll long long int
 
 Adafruit_BNO055 bno = Adafruit_BNO055(55, 0x28);
 
@@ -15,6 +15,10 @@ const int lim = 100;
 double queue_weights[maxn];
 
 sensors_event_t event;
+
+uint8_t sys, gyro, accel, mag = 0;
+
+double init_time = 0;
 
 ISR (INT0_vect){
   if(free_fall()) digitalWrite(parachute, !digitalRead(parachute));
@@ -28,6 +32,8 @@ void setup() {
   pinMode(parachute, OUTPUT);
   
   while(!bno.begin()) Serial.print("Ooops, no BNO055 detected ... Check your wiring or I2C ADDR!");
+
+  init_time = millis();
   
   DDRD &= ~(1 << DDD2);//configura PD2 como entrada
   DDRD |=  (1 << DDD7);//configura PD7 como saída
@@ -40,8 +46,9 @@ void setup() {
   sei();
 }
 void loop() {
-  update_queue(event.orientation.y);  
+  bno.getCalibration(&sys, &gyro, &accel, &mag);
+  update_queue(altitude());  
+  
   bno.getEvent(&event);
-
   PORTD = PORTD7 & !((int)event.orientation.z);
 }
